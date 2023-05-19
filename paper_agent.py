@@ -1,14 +1,16 @@
 #next steps
-    #explore adding other sources / extending searches (e.g. more terms, more platforms?)
-    #setup cronjobs based on target terms / platforms (e.g. so work like automated alerts)
+    #add loop through key alert terms in bash script (which is why need llm reviewer optional / elsewhere)
+    #add bioxriv, medxriv (and google scholar)
+    #setup cronjob to run once a week on Fridays
+    #try other LLMs
 
 import article_consolidator as ac
 import llm_reviewer as lr
 from utils import * 
 import datetime
 from datetime import datetime
-import faiss
-from sentence_transformers import SentenceTransformer
+# import faiss
+# from sentence_transformers import SentenceTransformer
 import sys
 import config as cf
 
@@ -18,10 +20,22 @@ llm_agent = lr.LLMReviewer(system_prompt)
 today = datetime.now()
 today_str = today.strftime("%d_%m_%Y_%H_%M_%S")
 
-query = sys.argv[1]
-topic_keyword = sys.argv[2]
-print("Query: ", query)
-print("Topic check: ", topic_keyword)
+if len(sys.argv) < 2:
+    raise Exception("Error, no query provided")
+elif len(sys.argv) < 3:
+    print("Query only, no LLM topic check")
+    query = sys.argv[1]
+    topic_keyword = "Not provided"
+
+    print("Query: ", query)
+    print("Topic keyword: ", topic_keyword)
+else:
+    print("Query and LLM topic check")
+    query = sys.argv[1]
+    topic_keyword = sys.argv[2]
+
+    print("Query: ", query)
+    print("Topic keyword: ", topic_keyword)
 
 max_results = 10
 article_consolidator = ac.ArticleConsolidator(query, max_results, min_date='2020/01/01', search_date=today_str)
@@ -48,6 +62,11 @@ for article in articles:
 
     if article["Title"] in current_paper_titles:
         print("Not added: article title already in list")
+    elif topic_keyword == "Not provided":
+        print("Topic check query parameter not provided - article added without a check")
+        article["Topic Check"] = "N/A"
+        article["Topic Check Query"] = "N/A"
+        labelled_articles.append(article)
     else:
         #review the content with ChatGPT
         llm_topic_mention_prompt_template = """ 
