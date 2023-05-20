@@ -20,12 +20,13 @@ today_str = today.strftime("%d_%m_%Y_%H_%M_%S")
 queries = cf.query_config["queries"]
 queries_topic_checks = cf.query_config["topic_checks"]
 max_results = cf.query_config["max_results"]
+search_sources = cf.query_config["search_sources"]
 
 run_topic_check = cf.llm_config["run_topic_check"]
 
 for idx, query in enumerate(queries):
     print("Query: ", query)
-    article_consolidator = ac.ArticleConsolidator(query, max_results, min_date='2020/01/01', search_date=today_str)
+    article_consolidator = ac.ArticleConsolidator(query, max_results, min_date='2020/01/01', search_date=today_str, search_sources=search_sources)
     articles = article_consolidator.consolidate()
 
     labelled_articles = []
