@@ -55,5 +55,5 @@ def get_worksheet_title_list(gsheet_key, credentials_key_path, gsheet_tab_name, 
 
     target_tab = gs.worksheet(gsheet_tab_name)
     tgt_list = target_tab.col_values(tgt_col_num)
-    print("Target values: ", tgt_list)
+    # print("Target values: ", tgt_list)
     return tgt_list

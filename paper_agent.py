@@ -1,5 +1,4 @@
 #next steps
-    #setup cronjob to run once a week on Fridays
     #add bioxriv, medxriv (and google scholar)
     #try other LLMs
 

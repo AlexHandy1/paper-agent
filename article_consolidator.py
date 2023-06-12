@@ -31,20 +31,21 @@ class ArticleConsolidator:
                 })
 
         if "arxiv" in self.search_sources:
-
-            arxiv_search = ar.ArxivSearch(self.query, max_results=self.max_results)
-            arxiv_articles = arxiv_search.search()
-            
-            for arxiv_article in arxiv_articles:
-                articles.append({
-                    'Title': arxiv_article['title'],
-                    'Abstract': arxiv_article['summary'],
-                    'Published': arxiv_article['published'],
-                    'Link': arxiv_article['link'],
-                    'Source': 'Arxiv',
-                    'Query': self.query,
-                    'SearchDate': self.search_date,
-                    'Category': "N/A"
-                })
+            #NOTE: added due to low quality menopause results
+            if "menopause" not in self.query:
+                arxiv_search = ar.ArxivSearch(self.query, max_results=self.max_results)
+                arxiv_articles = arxiv_search.search()
+                
+                for arxiv_article in arxiv_articles:
+                    articles.append({
+                        'Title': arxiv_article['title'],
+                        'Abstract': arxiv_article['summary'],
+                        'Published': arxiv_article['published'],
+                        'Link': arxiv_article['link'],
+                        'Source': 'Arxiv',
+                        'Query': self.query,
+                        'SearchDate': self.search_date,
+                        'Category': "N/A"
+                    })
         
         return articles
