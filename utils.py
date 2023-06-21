@@ -4,7 +4,6 @@ from gspread_dataframe import set_with_dataframe
 from google.oauth2.service_account import Credentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-import pandas as pd
 
 def save_articles_to_csv(articles, filename):
     with open(filename, mode='w', newline='') as file:
@@ -32,10 +31,8 @@ def add_articles_to_gsheet(articles, gsheet_key, credentials_key_path, gsheet_ta
     drive = GoogleDrive(gauth)
 
     gs = gc.open_by_key(gsheet_key)
-
-    article_df = pd.DataFrame(articles)
-    article_df_values = article_df.values.tolist()
-    gs.values_append(gsheet_tab_name, {'valueInputOption': 'RAW'}, {'values': article_df_values})
+    article_values = [list(article.values()) for article in articles]
+    gs.values_append(gsheet_tab_name, {'valueInputOption': 'RAW'}, {'values': article_values})
 
     print("Added ", len(articles), " articles to google sheet")
 

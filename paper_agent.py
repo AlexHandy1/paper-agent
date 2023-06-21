@@ -7,9 +7,6 @@ from datetime import datetime
 import sys
 import config as cf
 
-system_prompt = "You are an expert scientific reviewer that reviews and summarises scientific text in an unbiased, scholarly tone"
-llm_agent = lr.LLMReviewer(system_prompt)
-
 today = datetime.now()
 today_str = today.strftime("%d_%m_%Y_%H_%M_%S")
 
@@ -46,6 +43,8 @@ for idx, query in enumerate(queries):
         if article["Title"] in current_paper_titles:
             print("Not added: article title already in list")
         elif run_topic_check:
+            system_prompt = "You are an expert scientific reviewer that reviews and summarises scientific text in an unbiased, scholarly tone"
+            llm_agent = lr.LLMReviewer(system_prompt)
             query_topic_check = queries_topic_checks[idx]
             print("Query topic check: ", query_topic_check)
 
