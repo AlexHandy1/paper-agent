@@ -1,6 +1,3 @@
-#next steps
-    #add bioxriv, medxriv (and google scholar)
-    #try other LLMs
 
 import article_consolidator as ac
 import llm_reviewer as lr
