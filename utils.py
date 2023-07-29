@@ -1,6 +1,5 @@
 import csv
 import gspread
-from gspread_dataframe import set_with_dataframe
 from google.oauth2.service_account import Credentials
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -54,3 +53,9 @@ def get_worksheet_title_list(gsheet_key, credentials_key_path, gsheet_tab_name, 
     tgt_list = target_tab.col_values(tgt_col_num)
     # print("Target values: ", tgt_list)
     return tgt_list
+
+def parse_relevance_pred(raw_pred):
+    if raw_pred == 1:
+        return "Y"
+    else:
+        return "N"

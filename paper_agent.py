@@ -5,7 +5,9 @@ from utils import *
 import datetime
 from datetime import datetime
 import sys
+from sentence_transformers import SentenceTransformer
 import config as cf
+import pickle
 
 today = datetime.now()
 today_str = today.strftime("%d_%m_%Y_%H_%M_%S")
@@ -16,6 +18,8 @@ max_results = cf.query_config["max_results"]
 search_sources = cf.query_config["search_sources"]
 
 run_topic_check = cf.llm_config["run_topic_check"]
+run_relevance_model = cf.llm_config["run_relevance_model"]
+relevance_model_filepath = cf.llm_config["run_relevance_model_path"]
 
 for idx, query in enumerate(queries):
     print("Query: ", query)
@@ -42,34 +46,61 @@ for idx, query in enumerate(queries):
 
         if article["Title"] in current_paper_titles:
             print("Not added: article title already in list")
-        elif run_topic_check:
-            system_prompt = "You are an expert scientific reviewer that reviews and summarises scientific text in an unbiased, scholarly tone"
-            llm_agent = lr.LLMReviewer(system_prompt)
-            query_topic_check = queries_topic_checks[idx]
-            print("Query topic check: ", query_topic_check)
+        else: 
+            if run_topic_check:
+                system_prompt = "You are an expert scientific reviewer that reviews and summarises scientific text in an unbiased, scholarly tone"
+                llm_agent = lr.LLMReviewer(system_prompt)
+                query_topic_check = queries_topic_checks[idx]
+                print("Query topic check: ", query_topic_check)
 
-            #review the content with ChatGPT
-            llm_topic_mention_prompt_template = """ 
+                #review the content with ChatGPT
+                llm_topic_mention_prompt_template = """ 
 
-            Does the abstract below mention {topic}?
+                Does the abstract below mention {topic}?
 
-            If the answer is yes, please respond with "Yes: <Example sentence that mentions topic>"
-            If the answer is no, please respond with "No"
+                If the answer is yes, please respond with "Yes: <Example sentence that mentions topic>"
+                If the answer is no, please respond with "No"
 
-            {abstract}
+                {abstract}
 
-            """
-            llm_topic_mention_prompt = llm_topic_mention_prompt_template.format(topic=query_topic_check, abstract=article['Abstract'])
-            llm_topic_review = llm_agent.chat_without_memory(llm_topic_mention_prompt)
-            print("LLM Agent topic review: ", llm_topic_review)
-            print('-' * 80)
-            article["Topic Check"] = llm_topic_review
-            article["Topic Check Query"] = query_topic_check
-            labelled_articles.append(article)
-        else:
-            print("Topic check query not run")
-            article["Topic Check"] = "N/A"
-            article["Topic Check Query"] = "N/A"
+                """
+                llm_topic_mention_prompt = llm_topic_mention_prompt_template.format(topic=query_topic_check, abstract=article['Abstract'])
+                llm_topic_review = llm_agent.chat_without_memory(llm_topic_mention_prompt)
+                print("LLM Agent topic review: ", llm_topic_review)
+                print('-' * 80)
+                article["Topic Check"] = llm_topic_review
+                article["Topic Check Query"] = query_topic_check
+                # labelled_articles.append(article)
+            else:
+                print("Topic check query not run")
+                article["Topic Check"] = "N/A"
+                article["Topic Check Query"] = "N/A"
+                # labelled_articles.append(article)
+
+            if run_relevance_model:
+                print("Relevance model running")
+                #load models
+                relevance_model = pickle.load(open(relevance_model_filepath, 'rb'))
+                encoder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+
+                #generate title embeddings
+                title_vector = encoder.encode(article['Title'])
+
+                #generate prediction
+                relevance_pred_raw = relevance_model.predict(title_vector.reshape(1, -1))
+                print("Relevance raw pred: ", relevance_pred_raw)
+
+                #convert prediction into format
+                relevance_pred = parse_relevance_pred(relevance_pred_raw)
+                print("Relevance pred: ", relevance_pred)
+
+                #fill in dict
+                article["Relevant?"] = relevance_pred
+            else:
+                print("Relevance model not run")
+                article["Relevant?"] = "TBD"
+
+
             labelled_articles.append(article)
 
     add_articles_to_gsheet(labelled_articles, gsheet_key, credentials_key_path, gsheet_tab_name)
