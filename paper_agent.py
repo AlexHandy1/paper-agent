@@ -46,6 +46,9 @@ for idx, query in enumerate(queries):
 
         if article["Title"] in current_paper_titles:
             print("Not added: article title already in list")
+        #handle empty cases
+        elif (article["Title"] == "") | (article["Title"] == " ") | (article["Title"] == None):
+            print("Not added: empty article title")
         else: 
             if run_topic_check:
                 system_prompt = "You are an expert scientific reviewer that reviews and summarises scientific text in an unbiased, scholarly tone"
@@ -95,10 +98,10 @@ for idx, query in enumerate(queries):
                 print("Relevance pred: ", relevance_pred)
 
                 #fill in dict
-                article["Relevant?"] = relevance_pred
+                article["Relevant_pred"] = relevance_pred
             else:
                 print("Relevance model not run")
-                article["Relevant?"] = "TBD"
+                article["Relevant_pred"] = "TBD"
 
 
             labelled_articles.append(article)
