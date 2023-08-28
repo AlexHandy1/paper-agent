@@ -1,0 +1,5 @@
+gspread
+openai
+pydrive
+requests
+sentence_transformers
