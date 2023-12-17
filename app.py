@@ -47,6 +47,8 @@ def lambda_handler(event, context):
 	        print("Link: ", article['Link'])
 	        print("Source: ", article['Source'])
 
+	        #filter model logic could be added here (e.g. elif relevance==N, print("Model judges not relevant, filter out"))
+
 	        if article["Title"] in current_paper_titles:
 	            print("Not added: article title already in list")
 	        #handle empty cases

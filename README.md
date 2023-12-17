@@ -3,6 +3,8 @@
 Instructions also available when select "Push commands" for a selected AWS elastic container registry (ECR) repository. 
 Similar reference instructions available here - https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html.
 
+Note - sentence transformer model (all-MiniLM-L6-v2) and custom trained relevance model need to be downloaded and included locally in folder that Dockerfile builds from. Along with config.py, they are not included in this repo.
+
 - On local machine, make code changes to lambda function that are then packaged / provisioned within Dockerfile (when run local build in later step)
 - In AWS cloud console, create new repository in AWS ECR (e.g. aws-paper-agent-container-vX)
 - On local machine, run first command from within "push commands" (in AWS cloud console in ECR) that starts `aws ecr get-login-password --region eu-west-1 | docker login --username AWS --password-stdin [AWS host details]` - note this should not require any further local machine setup if AWS account credentials already setup correctly
